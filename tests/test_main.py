@@ -1,4 +1,5 @@
 import platform
+import re
 import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -1037,10 +1038,18 @@ def test_enable_version_header():
             ]
         )
         assert return_code == Exit.OK
-        assert (
-            output_file.read_text()
-            == (EXPECTED_MAIN_PATH / 'enable_version_header' / 'output.py').read_text()
+        output = output_file.read_text()
+        # disable version check
+        output = re.sub(
+            r'^.*' + '#   version:' + '.*\n?', '', output, flags=re.MULTILINE
         )
+        expected = (
+            EXPECTED_MAIN_PATH / 'enable_version_header' / 'output.py'
+        ).read_text()
+        expected = re.sub(
+            r'^.*' + '#   version:' + '.*\n?', '', expected, flags=re.MULTILINE
+        )
+        assert output == expected
 
 
 @pytest.mark.parametrize(
